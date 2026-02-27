@@ -33,12 +33,9 @@ background:#f7f7f7;border-radius:8px;
 }
 .submit-btn{background:#006400;color:white;}
 .home-btn{background:#444;color:white;margin-top:20px;}
-.correct{color:green;font-weight:bold;}
-.wrong{color:red;font-weight:bold;}
 .score{font-size:20px;text-align:center;margin-bottom:20px;}
 .timer{text-align:right;font-weight:bold;color:#8B0000;}
 
-/* ====== THANH TIẾN ĐỘ ====== */
 .sticky-progress{
 position:sticky;
 top:0;
@@ -85,11 +82,9 @@ transition:0.3s;
 <div id="info" style="display:none;" class="sticky-progress">
 <input type="text" id="fullname" placeholder="Nhập họ và tên" style="width:100%;padding:10px;margin-bottom:8px;">
 <div id="timer" class="timer"></div>
-
 <div class="progress-text">
 Đã làm: <span id="answeredCount">0</span>/20 câu
 </div>
-
 <div class="progress-bar-container">
 <div id="progressBar" class="progress-bar"></div>
 </div>
@@ -115,6 +110,27 @@ correct:0
 return arr;
 }
 
+function shuffle(a){
+return [...a].sort(()=>Math.random()-0.5);
+}
+
+function shuffleAnswers(question){
+let answers = question.answers.map((text,index)=>({
+text:text,
+isCorrect:index===question.correct
+}));
+
+answers = shuffle(answers);
+
+let newCorrectIndex = answers.findIndex(a=>a.isCorrect);
+
+return {
+question:question.question,
+answers:answers.map(a=>a.text),
+correct:newCorrectIndex
+};
+}
+
 const questionBanks={
 bo1:generateQuestions("SĨ QUAN"),
 bo2:generateQuestions("QUÂN NHÂN CHUYÊN NGHIỆP"),
@@ -125,10 +141,6 @@ let currentQuestions=[];
 let timeLeft=1200;
 let timerInterval;
 
-function shuffle(a){
-return [...a].sort(()=>Math.random()-0.5);
-}
-
 function startQuiz(bo){
 document.getElementById("menu").style.display="none";
 document.getElementById("quizForm").style.display="block";
@@ -136,7 +148,8 @@ document.getElementById("submitBtn").style.display="block";
 document.getElementById("info").style.display="block";
 document.getElementById("result").innerHTML="";
 
-currentQuestions=shuffle(questionBanks[bo]);
+currentQuestions = shuffle(questionBanks[bo]).map(q=>shuffleAnswers(q));
+
 const form=document.getElementById("quizForm");
 form.innerHTML="";
 
@@ -148,7 +161,8 @@ let div=document.createElement("div");
 div.className="question";
 div.innerHTML=`<p><b>${i+1}. ${q.question}</b></p>`;
 q.answers.forEach((a,index)=>{
-div.innerHTML+=`<label>
+div.innerHTML+=`
+<label>
 <input type="radio" name="q${i}" value="${index}" onclick="updateProgress()"> ${a}
 </label><br>`;
 });
@@ -167,8 +181,7 @@ answered++;
 }
 }
 document.getElementById("answeredCount").innerText=answered;
-let percent=(answered/20)*100;
-document.getElementById("progressBar").style.width=percent+"%";
+document.getElementById("progressBar").style.width=(answered/20*100)+"%";
 }
 
 function startTimer(){
@@ -179,7 +192,6 @@ let seconds=timeLeft%60;
 document.getElementById("timer").innerHTML=
 `Thời gian còn lại: ${minutes}:${seconds<10?'0':''}${seconds}`;
 timeLeft--;
-
 if(timeLeft<0){
 clearInterval(timerInterval);
 alert("Hết giờ! Bài sẽ được nộp tự động.");
@@ -192,16 +204,28 @@ function submitQuiz(){
 clearInterval(timerInterval);
 
 let score=0;
-let resultHTML="";
-let formData=new FormData(document.getElementById("quizForm"));
+let form=document.getElementById("quizForm");
+let formData=new FormData(form);
 
 currentQuestions.forEach((q,i)=>{
-let answer=formData.get(`q${i}`);
-if(answer==q.correct){
+let selected=formData.get(`q${i}`);
+let radios=document.getElementsByName(`q${i}`);
+
+radios.forEach((radio,index)=>{
+radio.disabled=true;
+
+if(index==q.correct){
+radio.parentElement.style.color="green";
+radio.parentElement.style.fontWeight="bold";
+}
+
+if(selected==index && selected!=q.correct){
+radio.parentElement.style.color="red";
+}
+});
+
+if(selected==q.correct){
 score++;
-resultHTML+=`<p class="correct">Câu ${i+1}: ĐÚNG</p>`;
-}else{
-resultHTML+=`<p class="wrong">Câu ${i+1}: SAI (Đáp án đúng: ${q.answers[q.correct]})</p>`;
 }
 });
 
@@ -209,10 +233,9 @@ let passText=score>=16
 ? "<p style='color:green;font-size:20px;font-weight:bold;'>KẾT QUẢ: ĐẠT</p>"
 : "<p style='color:red;font-size:20px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</p>";
 
-resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText+resultHTML;
+let resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText;
 resultHTML+=`<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>`;
 
-document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
 document.getElementById("info").style.display="none";
 document.getElementById("result").innerHTML=resultHTML;

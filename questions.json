@@ -1,0 +1,37 @@
+{
+  "bo1": [
+    {
+      "question": "Chủ nghĩa Mác - Lênin là nền tảng tư tưởng của Đảng nào?",
+      "answers": [
+        {"text": "Đảng Cộng sản Việt Nam", "correct": true},
+        {"text": "Đảng Dân chủ", "correct": false},
+        {"text": "Đảng Quốc gia", "correct": false},
+        {"text": "Đảng Tự do", "correct": false}
+      ]
+    }
+  ],
+
+  "bo2": [
+    {
+      "question": "Nghị quyết Đại hội XIII của Đảng xác định mục tiêu đến năm 2045 là gì?",
+      "answers": [
+        {"text": "Việt Nam trở thành nước phát triển, thu nhập cao", "correct": true},
+        {"text": "Trở thành nước nông nghiệp", "correct": false},
+        {"text": "Giảm dân số", "correct": false},
+        {"text": "Ngừng hội nhập", "correct": false}
+      ]
+    }
+  ],
+
+  "bo3": [
+    {
+      "question": "Nghĩa vụ bảo vệ Tổ quốc là của ai?",
+      "answers": [
+        {"text": "Mọi công dân Việt Nam", "correct": true},
+        {"text": "Chỉ quân đội", "correct": false},
+        {"text": "Chỉ cán bộ", "correct": false},
+        {"text": "Chỉ công chức", "correct": false}
+      ]
+    }
+  ]
+}

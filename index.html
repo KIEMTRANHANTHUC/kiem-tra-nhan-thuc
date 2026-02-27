@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" >
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +11,6 @@ margin:0;
 font-family:Arial, sans-serif;
 background:linear-gradient(135deg,#8B0000,#c40000);
 }
-.timer{
-text-align:right;
-font-weight:bold;
-color:#8B0000;
-margin-bottom:10px;
-}
-
 .container{
 max-width:900px;
 margin:40px auto;
@@ -26,64 +19,28 @@ padding:30px;
 border-radius:15px;
 box-shadow:0 15px 40px rgba(0,0,0,0.2);
 }
-
-h1{
-text-align:center;
-color:#8B0000;
-margin-bottom:30px;
-}
-
-.menu{
-text-align:center;
-}
-
+h1{text-align:center;color:#8B0000;}
 .menu button{
-display:block;
-width:100%;
-margin:10px 0;
-padding:15px;
-font-size:16px;
-border:none;
-border-radius:8px;
-background:#8B0000;
-color:white;
-cursor:pointer;
-transition:0.3s;
+display:block;width:100%;margin:10px 0;
+padding:15px;font-size:16px;border:none;
+border-radius:8px;background:#8B0000;
+color:white;cursor:pointer;
 }
-
-.menu button:hover{
-background:#c40000;
-transform:scale(1.02);
-}
-
+.menu button:hover{background:#c40000;}
 .question{
-margin-bottom:20px;
-padding:15px;
-background:#f7f7f7;
-border-radius:8px;
+margin-bottom:20px;padding:15px;
+background:#f7f7f7;border-radius:8px;
 }
-
-button.submit-btn{
-background:#006400;
-}
-
-button.home-btn{
-background:#444;
-margin-top:20px;
-}
-
+.submit-btn{background:#006400;color:white;}
+.home-btn{background:#444;color:white;margin-top:20px;}
 .correct{color:green;font-weight:bold;}
 .wrong{color:red;font-weight:bold;}
-.score{
-font-size:20px;
-text-align:center;
-margin-bottom:20px;
-}
+.score{font-size:20px;text-align:center;margin-bottom:20px;}
+.timer{text-align:right;font-weight:bold;color:#8B0000;}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 <h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
 
@@ -93,9 +50,13 @@ margin-bottom:20px;
 <button onclick="startQuiz('bo3')">CHIẾN SĨ</button>
 </div>
 
+<div id="info" style="display:none;">
+<input type="text" id="fullname" placeholder="Nhập họ và tên" style="width:100%;padding:10px;margin-bottom:10px;">
+<div id="timer" class="timer"></div>
+</div>
+
 <form id="quizForm" style="display:none;"></form>
 <button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
-
 <div id="result"></div>
 
 </div>
@@ -115,19 +76,24 @@ return arr;
 }
 
 const questionBanks={
-bo1:generateQuestions("sĨ QUAN"),
+bo1:generateQuestions("SĨ QUAN"),
 bo2:generateQuestions("QUÂN NHÂN CHUYÊN NGHIỆP"),
 bo3:generateQuestions("CHIẾN SĨ")
 };
 
 let currentQuestions=[];
+let timeLeft=1200;
+let timerInterval;
 
-function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+function shuffle(a){
+return [...a].sort(()=>Math.random()-0.5);
+}
 
 function startQuiz(bo){
 document.getElementById("menu").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="block";
+document.getElementById("info").style.display="block";
 document.getElementById("result").innerHTML="";
 
 currentQuestions=shuffle(questionBanks[bo]);
@@ -139,31 +105,61 @@ let div=document.createElement("div");
 div.className="question";
 div.innerHTML=`<p><b>${i+1}. ${q.question}</b></p>`;
 q.answers.forEach((a,index)=>{
-div.innerHTML+=`<label><input type="radio" name="q${i}" value="${index}"> ${a}</label><br>`;
+div.innerHTML+=`<label>
+<input type="radio" name="q${i}" value="${index}"> ${a}
+</label><br>`;
 });
 form.appendChild(div);
-startTimer();
 });
+
+timeLeft=1200;
+startTimer();
+}
+
+function startTimer(){
+clearInterval(timerInterval);
+timerInterval=setInterval(()=>{
+let minutes=Math.floor(timeLeft/60);
+let seconds=timeLeft%60;
+document.getElementById("timer").innerHTML=
+`Thời gian còn lại: ${minutes}:${seconds<10?'0':''}${seconds}`;
+timeLeft--;
+
+if(timeLeft<0){
+clearInterval(timerInterval);
+alert("Hết giờ! Bài sẽ được nộp tự động.");
+submitQuiz();
+}
+},1000);
 }
 
 function submitQuiz(){
-let passText="";
-if(score >= 16){
-    passText="<p style='color:green;font-size:20px;font-weight:bold;'>KẾT QUẢ: ĐẠT</p>";
-}else{
-    passText="<p style='color:red;font-size:20px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</p>";
-}
-resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText+resultHTML;
+clearInterval(timerInterval);
+
+let score=0;
+let resultHTML="";
+let formData=new FormData(document.getElementById("quizForm"));
+
+currentQuestions.forEach((q,i)=>{
+let answer=formData.get(`q${i}`);
+if(answer==q.correct){
+score++;
+resultHTML+=`<p class="correct">Câu ${i+1}: ĐÚNG</p>`;
 }else{
 resultHTML+=`<p class="wrong">Câu ${i+1}: SAI (Đáp án đúng: ${q.answers[q.correct]})</p>`;
 }
-    clearInterval(timerInterval);
 });
-resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+resultHTML;
+
+let passText=score>=16
+? "<p style='color:green;font-size:20px;font-weight:bold;'>KẾT QUẢ: ĐẠT</p>"
+: "<p style='color:red;font-size:20px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</p>";
+
+resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText+resultHTML;
 resultHTML+=`<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>`;
 
 document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
+document.getElementById("info").style.display="none";
 document.getElementById("result").innerHTML=resultHTML;
 }
 
@@ -172,25 +168,7 @@ document.getElementById("menu").style.display="block";
 document.getElementById("result").innerHTML="";
 }
 
-function startTimer(){
-timerInterval = setInterval(()=>{
-let minutes = Math.floor(timeLeft/60);
-let seconds = timeLeft%60;
-document.getElementById("timer").innerHTML =
-`Thời gian còn lại: ${minutes}:${seconds<10?'0':''}${seconds}`;
-timeLeft--;
-
-if(timeLeft < 0){
-clearInterval(timerInterval);
-alert("Hết giờ! Bài sẽ được nộp tự động.");
-submitQuiz();
-}
-},1000);
-}
-
-</script=let timeLeft = 600; // 10 phút = 600 giây
-let timerInterval;>
-    
+</script>
 
 </body>
 </html>

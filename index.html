@@ -124,67 +124,69 @@ cursor:pointer;
 
 <script>
 
-let currentQuestions=[];
+let currentQuestions = [];
 let timerInterval;
-let timeLeft=1200;
+let timeLeft = 1200;
 
+/* ================= SHUFFLE ================= */
 function shuffle(array){
 return array.sort(()=>Math.random()-0.5);
 }
 
+/* ================= QUESTION BANK ================= */
 function generateQuestions(group){
 let arr=[];
 for(let i=1;i<=20;i++){
 arr.push({
-question:group+" - Câu hỏi số "+i+"?",
-answers:shuffle([
-{text:"Đáp án A",correct:true},
-{text:"Đáp án B",correct:false},
-{text:"Đáp án C",correct:false},
-{text:"Đáp án D",correct:false}
+question: group + " - Câu hỏi số " + i + "?",
+answers: shuffle([
+{text:"Đáp án A", correct:true},
+{text:"Đáp án B", correct:false},
+{text:"Đáp án C", correct:false},
+{text:"Đáp án D", correct:false}
 ])
 });
 }
 return arr;
 }
 
-const bo1=generateQuestions("Sĩ quan");
-const bo2=generateQuestions("Quân nhân chuyên nghiệp");
-const bo3=generateQuestions("Chiến sĩ");
+const bo1 = generateQuestions("Sĩ quan");
+const bo2 = generateQuestions("Quân nhân chuyên nghiệp");
+const bo3 = generateQuestions("Chiến sĩ");
 
+const questionSets = {bo1, bo2, bo3};
+
+/* ================= START QUIZ ================= */
 function startQuiz(type){
-
-// Không bắt buộc nhập tên
-let nameInput = document.getElementById("fullname");
-let userName = nameInput.value.trim();
-
-// Nếu không nhập thì gán mặc định
-if(userName === ""){
-userName = "Người làm bài";
-}
 
 document.getElementById("menu").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
+document.getElementById("result").innerHTML="";
 
-currentQuestions = shuffle([...eval(type)]);
+currentQuestions = shuffle([...questionSets[type]]);
 
 renderQuestions();
 startTimer();
 }
+
+/* ================= RENDER ================= */
 function renderQuestions(){
-let form=document.getElementById("quizForm");
+let form = document.getElementById("quizForm");
 form.innerHTML="";
 
 currentQuestions.forEach((q,index)=>{
 let div=document.createElement("div");
 div.className="question-box";
 
-div.innerHTML=`<div class="question-title">Câu ${index+1}: ${q.question}</div>`;
+div.innerHTML=`<div class="question-title">
+Câu ${index+1}: ${q.question}
+</div>`;
 
 q.answers.forEach((a,i)=>{
-div.innerHTML+=`<label>
+div.innerHTML+=`
+<label>
 <input type="radio" name="q${index}" value="${i}" onchange="updateProgress()">
 ${a.text}
 </label><br>`;
@@ -194,12 +196,15 @@ form.appendChild(div);
 });
 }
 
+/* ================= PROGRESS ================= */
 function updateProgress(){
 let answered=document.querySelectorAll("input[type=radio]:checked").length;
 document.getElementById("answeredCount").innerText=answered;
-document.getElementById("progressBar").style.width=(answered/20*100)+"%";
+document.getElementById("progressBar").style.width=
+(answered/20*100)+"%";
 }
 
+/* ================= TIMER ================= */
 function startTimer(){
 timeLeft=1200;
 clearInterval(timerInterval);
@@ -209,15 +214,22 @@ let s=timeLeft%60;
 document.getElementById("timer").innerHTML=
 "Thời gian: "+m+":"+(s<10?"0":"")+s;
 timeLeft--;
-if(timeLeft<0){clearInterval(timerInterval);submitQuiz();}
+if(timeLeft<0){
+clearInterval(timerInterval);
+submitQuiz();
+}
 },1000);
 }
 
+/* ================= SUBMIT ================= */
 function submitQuiz(){
+
 clearInterval(timerInterval);
+
 let score=0;
 
 currentQuestions.forEach((q,index)=>{
+
 let selected=document.querySelector(`input[name="q${index}"]:checked`);
 let labels=document.querySelectorAll(`input[name="q${index}"]`);
 
@@ -228,30 +240,38 @@ parent.innerHTML=input.nextSibling.textContent;
 if(q.answers[i].correct){
 parent.innerHTML+="<span class='correct-icon'> ✓</span>";
 }
+
 if(selected && i==selected.value && !q.answers[i].correct){
 parent.innerHTML+="<span class='wrong-icon'> ✗</span>";
 }
 });
 
-if(selected && q.answers[selected.value].correct){score++;}
+if(selected && q.answers[selected.value].correct){
+score++;
+}
 });
 
 document.getElementById("submitBtn").style.display="none";
 
-document.getElementById("result").innerHTML=
-`<div class="score">Kết quả: ${score}/20</div>
-<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>`;
+document.getElementById("result").innerHTML=`
+<div class="score">Kết quả: ${score}/20</div>
+<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>
+`;
 }
 
+/* ================= HOME ================= */
 function goHome(){
+
 document.getElementById("menu").style.display="block";
 document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
 document.getElementById("info").style.display="none";
+
 document.getElementById("quizForm").innerHTML="";
 document.getElementById("result").innerHTML="";
 document.getElementById("answeredCount").innerText="0";
 document.getElementById("progressBar").style.width="0%";
+
 clearInterval(timerInterval);
 }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" >
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,12 @@ body{
 margin:0;
 font-family:Arial, sans-serif;
 background:linear-gradient(135deg,#8B0000,#c40000);
+}
+.timer{
+text-align:right;
+font-weight:bold;
+color:#8B0000;
+margin-bottom:10px;
 }
 
 .container{
@@ -136,6 +142,7 @@ q.answers.forEach((a,index)=>{
 div.innerHTML+=`<label><input type="radio" name="q${i}" value="${index}"> ${a}</label><br>`;
 });
 form.appendChild(div);
+startTimer();
 });
 }
 
@@ -150,6 +157,7 @@ resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText+
 }else{
 resultHTML+=`<p class="wrong">Câu ${i+1}: SAI (Đáp án đúng: ${q.answers[q.correct]})</p>`;
 }
+    clearInterval(timerInterval);
 });
 resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+resultHTML;
 resultHTML+=`<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>`;
@@ -164,7 +172,25 @@ document.getElementById("menu").style.display="block";
 document.getElementById("result").innerHTML="";
 }
 
-</script>
+function startTimer(){
+timerInterval = setInterval(()=>{
+let minutes = Math.floor(timeLeft/60);
+let seconds = timeLeft%60;
+document.getElementById("timer").innerHTML =
+`Thời gian còn lại: ${minutes}:${seconds<10?'0':''}${seconds}`;
+timeLeft--;
+
+if(timeLeft < 0){
+clearInterval(timerInterval);
+alert("Hết giờ! Bài sẽ được nộp tự động.");
+submitQuiz();
+}
+},1000);
+}
+
+</script=let timeLeft = 600; // 10 phút = 600 giây
+let timerInterval;>
+    
 
 </body>
 </html>

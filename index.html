@@ -9,33 +9,152 @@
 body{
 margin:0;
 font-family:Arial, sans-serif;
-background:linear-gradient(135deg,#8B0000,#c40000);
+background:linear-gradient(rgba(139,0,0,0.95), rgba(139,0,0,0.95)),
+url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png");
+background-size:cover;
+background-attachment:fixed;
 }
+
+/* ===== HEADER ===== */
+.header{
+background:linear-gradient(to right,#8B0000,#b30000);
+color:white;
+padding:15px 20px;
+display:flex;
+align-items:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+
+.logo{
+width:70px;
+height:70px;
+margin-right:15px;
+border-radius:50%;
+background:white;
+padding:5px;
+}
+
+.unit-info{flex:1;}
+
+.unit-name{
+font-size:20px;
+font-weight:bold;
+text-transform:uppercase;
+letter-spacing:1px;
+}
+
+.slogan{
+font-size:14px;
+font-style:italic;
+margin-top:5px;
+}
+
+.clock{
+font-size:14px;
+text-align:right;
+}
+
+/* ===== CONTAINER ===== */
 .container{
-max-width:900px;
-margin:40px auto;
+max-width:950px;
+margin:30px auto;
 background:white;
 padding:30px;
 border-radius:15px;
-box-shadow:0 15px 40px rgba(0,0,0,0.2);
+box-shadow:0 15px 40px rgba(0,0,0,0.3);
+animation:fadeIn 0.6s ease-in-out;
 }
-h1{text-align:center;color:#8B0000;}
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(20px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+h1{
+text-align:center;
+color:#8B0000;
+margin-top:0;
+}
+
+/* ===== MENU ===== */
 .menu button{
 display:block;width:100%;margin:10px 0;
 padding:15px;font-size:16px;border:none;
 border-radius:8px;background:#8B0000;
 color:white;cursor:pointer;
+transition:0.3s;
 }
-.menu button:hover{background:#c40000;}
-.question{
-margin-bottom:20px;padding:15px;
-background:#f7f7f7;border-radius:8px;
+.menu button:hover{
+background:#cc0000;
+transform:scale(1.02);
 }
-.submit-btn{background:#006400;color:white;}
-.home-btn{background:#444;color:white;margin-top:20px;}
-.score{font-size:20px;text-align:center;margin-bottom:20px;}
-.timer{text-align:right;font-weight:bold;color:#8B0000;}
 
+/* ===== QUESTIONS ===== */
+.question-box{
+margin-bottom:20px;
+padding:15px;
+border-radius:10px;
+background:#fff8f8;
+border-left:8px solid #8B0000;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.question-title{
+font-weight:bold;
+margin-bottom:10px;
+padding:8px;
+background:#ffeaea;
+border-radius:6px;
+}
+
+.answers label{
+display:block;
+padding:6px;
+border-radius:5px;
+cursor:pointer;
+}
+
+.answers label:hover{
+background:#f2f2f2;
+}
+
+.correct-icon{color:green;font-weight:bold;margin-left:10px;}
+.wrong-icon{color:red;font-weight:bold;margin-left:10px;}
+
+.submit-btn{
+background:#006400;
+color:white;
+margin-top:10px;
+padding:10px 20px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.home-btn{
+background:#444;
+color:white;
+margin-top:20px;
+padding:10px 20px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.score{
+font-size:20px;
+text-align:center;
+margin-bottom:20px;
+font-weight:bold;
+}
+
+.timer{
+text-align:right;
+font-weight:bold;
+color:#8B0000;
+}
+
+/* ===== PROGRESS ===== */
 .sticky-progress{
 position:sticky;
 top:0;
@@ -46,30 +165,32 @@ box-shadow:0 4px 10px rgba(0,0,0,0.1);
 margin-bottom:15px;
 }
 
-.progress-text{
-font-weight:bold;
-color:#8B0000;
-}
+.progress-text{font-weight:bold;color:#8B0000;}
 
 .progress-bar-container{
-width:100%;
-height:18px;
-background:#ddd;
-border-radius:10px;
-overflow:hidden;
-margin-top:5px;
+width:100%;height:18px;background:#ddd;
+border-radius:10px;overflow:hidden;margin-top:5px;
 }
-
 .progress-bar{
-height:100%;
-width:0%;
-background:#006400;
-transition:0.3s;
+height:100%;width:0%;
+background:#006400;transition:0.3s;
 }
 </style>
 </head>
 
 <body>
+
+<div class="header">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Emblem_of_the_People%27s_Army_of_Vietnam.svg/1024px-Emblem_of_the_People%27s_Army_of_Vietnam.svg.png" class="logo">
+<div class="unit-info">
+<div class="unit-name">ĐƠN VỊ: TRUNG ĐOÀN XXX</div>
+<div class="slogan">
+"Trung thành - Kỷ luật - Đoàn kết - Quyết thắng"
+</div>
+</div>
+<div class="clock" id="clock"></div>
+</div>
+
 <div class="container">
 <h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
 
@@ -97,155 +218,16 @@ transition:0.3s;
 </div>
 
 <script>
-
-function generateQuestions(prefix){
-let arr=[];
-for(let i=1;i<=20;i++){
-arr.push({
-question:`${prefix} - Câu hỏi số ${i}?`,
-answers:["Đáp án A","Đáp án B","Đáp án C","Đáp án D"],
-correct:0
-});
+// Đồng hồ thời gian thực
+function updateClock(){
+let now = new Date();
+document.getElementById("clock").innerHTML =
+now.toLocaleString("vi-VN");
 }
-return arr;
-}
+setInterval(updateClock,1000);
+updateClock();
 
-function shuffle(a){
-return [...a].sort(()=>Math.random()-0.5);
-}
-
-function shuffleAnswers(question){
-let answers = question.answers.map((text,index)=>({
-text:text,
-isCorrect:index===question.correct
-}));
-
-answers = shuffle(answers);
-
-let newCorrectIndex = answers.findIndex(a=>a.isCorrect);
-
-return {
-question:question.question,
-answers:answers.map(a=>a.text),
-correct:newCorrectIndex
-};
-}
-
-const questionBanks={
-bo1:generateQuestions("SĨ QUAN"),
-bo2:generateQuestions("QUÂN NHÂN CHUYÊN NGHIỆP"),
-bo3:generateQuestions("CHIẾN SĨ")
-};
-
-let currentQuestions=[];
-let timeLeft=1200;
-let timerInterval;
-
-function startQuiz(bo){
-document.getElementById("menu").style.display="none";
-document.getElementById("quizForm").style.display="block";
-document.getElementById("submitBtn").style.display="block";
-document.getElementById("info").style.display="block";
-document.getElementById("result").innerHTML="";
-
-currentQuestions = shuffle(questionBanks[bo]).map(q=>shuffleAnswers(q));
-
-const form=document.getElementById("quizForm");
-form.innerHTML="";
-
-document.getElementById("answeredCount").innerText="0";
-document.getElementById("progressBar").style.width="0%";
-
-currentQuestions.forEach((q,i)=>{
-let div=document.createElement("div");
-div.className="question";
-div.innerHTML=`<p><b>${i+1}. ${q.question}</b></p>`;
-q.answers.forEach((a,index)=>{
-div.innerHTML+=`
-<label>
-<input type="radio" name="q${i}" value="${index}" onclick="updateProgress()"> ${a}
-</label><br>`;
-});
-form.appendChild(div);
-});
-
-timeLeft=1200;
-startTimer();
-}
-
-function updateProgress(){
-let answered=0;
-for(let i=0;i<20;i++){
-if(document.querySelector(`input[name="q${i}"]:checked`)){
-answered++;
-}
-}
-document.getElementById("answeredCount").innerText=answered;
-document.getElementById("progressBar").style.width=(answered/20*100)+"%";
-}
-
-function startTimer(){
-clearInterval(timerInterval);
-timerInterval=setInterval(()=>{
-let minutes=Math.floor(timeLeft/60);
-let seconds=timeLeft%60;
-document.getElementById("timer").innerHTML=
-`Thời gian còn lại: ${minutes}:${seconds<10?'0':''}${seconds}`;
-timeLeft--;
-if(timeLeft<0){
-clearInterval(timerInterval);
-alert("Hết giờ! Bài sẽ được nộp tự động.");
-submitQuiz();
-}
-},1000);
-}
-
-function submitQuiz(){
-clearInterval(timerInterval);
-
-let score=0;
-let form=document.getElementById("quizForm");
-let formData=new FormData(form);
-
-currentQuestions.forEach((q,i)=>{
-let selected=formData.get(`q${i}`);
-let radios=document.getElementsByName(`q${i}`);
-
-radios.forEach((radio,index)=>{
-radio.disabled=true;
-
-if(index==q.correct){
-radio.parentElement.style.color="green";
-radio.parentElement.style.fontWeight="bold";
-}
-
-if(selected==index && selected!=q.correct){
-radio.parentElement.style.color="red";
-}
-});
-
-if(selected==q.correct){
-score++;
-}
-});
-
-let passText=score>=16
-? "<p style='color:green;font-size:20px;font-weight:bold;'>KẾT QUẢ: ĐẠT</p>"
-: "<p style='color:red;font-size:20px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</p>";
-
-let resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText;
-resultHTML+=`<button class="home-btn" onclick="goHome()">Quay về trang chủ</button>`;
-
-document.getElementById("submitBtn").style.display="none";
-document.getElementById("info").style.display="none";
-document.getElementById("result").innerHTML=resultHTML;
-}
-
-function goHome(){
-document.getElementById("menu").style.display="block";
-document.getElementById("result").innerHTML="";
-}
-
+/* GIỮ NGUYÊN TOÀN BỘ JS THI HIỆN TẠI CỦA BẠN Ở ĐÂY */
 </script>
 
 </body>

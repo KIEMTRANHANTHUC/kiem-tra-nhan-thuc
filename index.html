@@ -140,13 +140,13 @@ form.appendChild(div);
 }
 
 function submitQuiz(){
-let score=0;
-let resultHTML="<div class='score'>";
-currentQuestions.forEach((q,i)=>{
-let selected=document.querySelector(`input[name="q${i}"]:checked`);
-if(selected && parseInt(selected.value)===q.correct){
-score++;
-resultHTML+=`<p class="correct">Câu ${i+1}: ĐÚNG</p>`;
+let passText="";
+if(score >= 16){
+    passText="<p style='color:green;font-size:20px;font-weight:bold;'>KẾT QUẢ: ĐẠT</p>";
+}else{
+    passText="<p style='color:red;font-size:20px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</p>";
+}
+resultHTML=`<div class="score">Điểm của bạn: ${score}/20</div>`+passText+resultHTML;
 }else{
 resultHTML+=`<p class="wrong">Câu ${i+1}: SAI (Đáp án đúng: ${q.answers[q.correct]})</p>`;
 }

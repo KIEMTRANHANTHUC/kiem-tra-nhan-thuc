@@ -154,9 +154,13 @@ const bo3=generateQuestions("Chiến sĩ");
 
 function startQuiz(type){
 
-if(document.getElementById("fullname").value.trim()==""){
-alert("Vui lòng nhập họ tên!");
-return;
+// Không bắt buộc nhập tên
+let nameInput = document.getElementById("fullname");
+let userName = nameInput.value.trim();
+
+// Nếu không nhập thì gán mặc định
+if(userName === ""){
+userName = "Người làm bài";
 }
 
 document.getElementById("menu").style.display="none";
@@ -164,11 +168,11 @@ document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
 
-currentQuestions=shuffle([...eval(type)]);
+currentQuestions = shuffle([...eval(type)]);
+
 renderQuestions();
 startTimer();
 }
-
 function renderQuestions(){
 let form=document.getElementById("quizForm");
 form.innerHTML="";

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</title>
+<style>
+body{font-family:Arial;background:#f4f6f9;padding:20px}
+.container{max-width:800px;margin:auto;background:white;padding:20px;border-radius:10px}
+h1{text-align:center;color:#b30000}
+button{padding:10px 15px;margin:5px;background:#b30000;color:white;border:none;border-radius:5px;cursor:pointer}
+button:hover{background:#800000}
+.correct{color:green}
+.wrong{color:red}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
+
+<div id="menu">
+<h3>Chọn đối tượng:</h3>
+<button onclick="startQuiz('bo1')">Bộ 1 - SĨ QUAN</button>
+<button onclick="startQuiz('bo2')">Bộ 2 - QUÂN NHÂN CHUYÊN NGHIỆP</button>
+<button onclick="startQuiz('bo3')">Bộ 3 - HSQ,CS</button>
+</div>
+
+<form id="quizForm" style="display:none;"></form>
+<button id="submitBtn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const questionBanks = {
+
+bo1:[
+{question:"Đảng Cộng sản Việt Nam thành lập năm nào?",answers:["1930","1945","1954","1975"],correct:0},
+{question:"Nguyên tắc tổ chức cơ bản của Đảng là gì?",answers:["Tập trung dân chủ","Tự do cá nhân","Độc đoán","Chuyên quyền"],correct:0}
+],
+
+bo2:[
+{question:"Đảng viên phải làm gì với nghị quyết?",answers:["Quán triệt và thực hiện","Bỏ qua","Không quan tâm","Chờ người khác làm"],correct:0},
+{question:"Đảng viên vi phạm bị xử lý theo?",answers:["Điều lệ Đảng","Luật thương mại","Luật dân sự","Không xử lý"],correct:0}
+],
+
+bo3:[
+{question:"Công dân có quyền gì?",answers:["Bầu cử","Ban hành luật","Phủ quyết luật","Tước quyền"],correct:0},
+{question:"Hiến pháp là gì?",answers:["Luật cơ bản của Nhà nước","Chỉ thị nội bộ","Nghị quyết cá nhân","Văn bản hành chính"],correct:0}
+]
+
+};
+
+let currentQuestions=[];
+
+function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+
+function startQuiz(bo){
+document.getElementById("menu").style.display="none";
+document.getElementById("quizForm").style.display="block";
+document.getElementById("submitBtn").style.display="inline-block";
+
+currentQuestions=shuffle(questionBanks[bo]);
+const form=document.getElementById("quizForm");
+form.innerHTML="";
+
+currentQuestions.forEach((q,i)=>{
+let div=document.createElement("div");
+div.innerHTML=`<p>${i+1}. ${q.question}</p>`;
+q.answers.forEach((a,index)=>{
+div.innerHTML+=`<label><input type="radio" name="q${i}" value="${index}">${a}</label><br>`;
+});
+form.appendChild(div);
+});
+}
+
+function submitQuiz(){
+let score=0;
+let result="";
+currentQuestions.forEach((q,i)=>{
+let selected=document.querySelector(`input[name="q${i}"]:checked`);
+if(selected && parseInt(selected.value)===q.correct){
+score++;
+result+=`<p class="correct">${i+1}. ĐÚNG</p>`;
+}else{
+result+=`<p class="wrong">${i+1}. SAI (Đáp án: ${q.answers[q.correct]})</p>`;
+}
+});
+document.getElementById("result").innerHTML=`<h3>Điểm: ${score}/${currentQuestions.length}</h3>`+result;
+}
+
+</script>
+
+</body>
+</html>

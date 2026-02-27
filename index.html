@@ -26,7 +26,7 @@ margin-right:15px;
 }
 
 .container{
-max-width:950px;
+max-width:1000px;
 margin:20px auto;
 background:white;
 padding:25px;
@@ -36,11 +36,22 @@ border-radius:10px;
 h1{text-align:center;color:#8B0000;}
 
 .menu button{
-display:block;width:100%;margin:10px 0;
-padding:12px;font-size:16px;
-background:#8B0000;color:white;
-border:none;border-radius:6px;
+display:block;
+width:100%;
+margin:10px 0;
+padding:15px;
+font-size:16px;
+background:#8B0000;
+color:white;
+border:none;
+border-radius:6px;
 cursor:pointer;
+transition:0.3s;
+}
+
+.menu button:hover{
+transform:scale(1.05);
+background:#cc0000;
 }
 
 .question-box{
@@ -51,10 +62,22 @@ border-left:6px solid #8B0000;
 border-radius:6px;
 }
 
-.question-title{font-weight:bold;margin-bottom:8px;}
+.question-title{
+font-weight:bold;
+margin-bottom:8px;
+}
 
-.correct-icon{color:green;font-weight:bold;margin-left:10px;}
-.wrong-icon{color:red;font-weight:bold;margin-left:10px;}
+.correct-icon{
+color:green;
+font-weight:bold;
+margin-left:10px;
+}
+
+.wrong-icon{
+color:red;
+font-weight:bold;
+margin-left:10px;
+}
 
 .sticky-progress{
 position:sticky;
@@ -63,21 +86,30 @@ background:white;
 padding:10px;
 margin-bottom:15px;
 box-shadow:0 3px 8px rgba(0,0,0,0.2);
+z-index:1000;
 }
 
 .progress-bar-container{
-width:100%;height:18px;background:#ddd;
-border-radius:8px;overflow:hidden;margin-top:5px;
+width:100%;
+height:18px;
+background:#ddd;
+border-radius:8px;
+overflow:hidden;
+margin-top:5px;
 }
+
 .progress-bar{
-height:100%;width:0%;
-background:green;transition:0.3s;
+height:100%;
+width:0%;
+background:green;
+transition:0.3s;
 }
 
 .submit-btn,.home-btn{
 padding:10px 15px;
 margin-top:10px;
-border:none;border-radius:6px;
+border:none;
+border-radius:6px;
 cursor:pointer;
 }
 
@@ -122,41 +154,14 @@ cursor:pointer;
 
 </div>
 
+<script src="questions.js"></script>
+
 <script>
 
-let currentQuestions = [];
+let currentQuestions=[];
 let timerInterval;
-let timeLeft = 1200;
+let timeLeft=1200;
 
-/* ================= SHUFFLE ================= */
-function shuffle(array){
-return array.sort(()=>Math.random()-0.5);
-}
-
-/* ================= QUESTION BANK ================= */
-function generateQuestions(group){
-let arr=[];
-for(let i=1;i<=20;i++){
-arr.push({
-question: group + " - Câu hỏi số " + i + "?",
-answers: shuffle([
-{text:"Đáp án A", correct:true},
-{text:"Đáp án B", correct:false},
-{text:"Đáp án C", correct:false},
-{text:"Đáp án D", correct:false}
-])
-});
-}
-return arr;
-}
-
-const bo1 = generateQuestions("Sĩ quan");
-const bo2 = generateQuestions("Quân nhân chuyên nghiệp");
-const bo3 = generateQuestions("Chiến sĩ");
-
-const questionSets = {bo1, bo2, bo3};
-
-/* ================= START QUIZ ================= */
 function startQuiz(type){
 
 document.getElementById("menu").style.display="none";
@@ -165,15 +170,14 @@ document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
 document.getElementById("result").innerHTML="";
 
-currentQuestions = shuffle([...questionSets[type]]);
+currentQuestions=shuffle([...questionSets[type]]);
 
 renderQuestions();
 startTimer();
 }
 
-/* ================= RENDER ================= */
 function renderQuestions(){
-let form = document.getElementById("quizForm");
+let form=document.getElementById("quizForm");
 form.innerHTML="";
 
 currentQuestions.forEach((q,index)=>{
@@ -196,15 +200,12 @@ form.appendChild(div);
 });
 }
 
-/* ================= PROGRESS ================= */
 function updateProgress(){
 let answered=document.querySelectorAll("input[type=radio]:checked").length;
 document.getElementById("answeredCount").innerText=answered;
-document.getElementById("progressBar").style.width=
-(answered/20*100)+"%";
+document.getElementById("progressBar").style.width=(answered/20*100)+"%";
 }
 
-/* ================= TIMER ================= */
 function startTimer(){
 timeLeft=1200;
 clearInterval(timerInterval);
@@ -214,22 +215,15 @@ let s=timeLeft%60;
 document.getElementById("timer").innerHTML=
 "Thời gian: "+m+":"+(s<10?"0":"")+s;
 timeLeft--;
-if(timeLeft<0){
-clearInterval(timerInterval);
-submitQuiz();
-}
+if(timeLeft<0){clearInterval(timerInterval);submitQuiz();}
 },1000);
 }
 
-/* ================= SUBMIT ================= */
 function submitQuiz(){
-
 clearInterval(timerInterval);
-
 let score=0;
 
 currentQuestions.forEach((q,index)=>{
-
 let selected=document.querySelector(`input[name="q${index}"]:checked`);
 let labels=document.querySelectorAll(`input[name="q${index}"]`);
 
@@ -251,27 +245,28 @@ score++;
 }
 });
 
+let status = score>=18
+? "<div style='color:green;font-size:22px;font-weight:bold;'>KẾT QUẢ: ĐẠT</div>"
+: "<div style='color:red;font-size:22px;font-weight:bold;'>KẾT QUẢ: KHÔNG ĐẠT</div>";
+
 document.getElementById("submitBtn").style.display="none";
 
 document.getElementById("result").innerHTML=`
-<div class="score">Kết quả: ${score}/20</div>
+<div class="score">Điểm số: ${score}/20</div>
+${status}
 <button class="home-btn" onclick="goHome()">Quay về trang chủ</button>
 `;
 }
 
-/* ================= HOME ================= */
 function goHome(){
-
 document.getElementById("menu").style.display="block";
 document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
 document.getElementById("info").style.display="none";
-
 document.getElementById("quizForm").innerHTML="";
 document.getElementById("result").innerHTML="";
 document.getElementById("answeredCount").innerText="0";
 document.getElementById("progressBar").style.width="0%";
-
 clearInterval(timerInterval);
 }
 

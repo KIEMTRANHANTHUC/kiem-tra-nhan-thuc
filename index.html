@@ -322,6 +322,13 @@ score++;
 
 let total=currentQuestions.length;
 let percent=(score/total)*100;
+let today = new Date();
+
+let day = String(today.getDate()).padStart(2,'0');
+let month = String(today.getMonth()+1).padStart(2,'0');
+let year = today.getFullYear();
+
+let currentDate = day + "/" + month + "/" + year;
 
 let statusText="";
 let statusColor="";
@@ -349,11 +356,14 @@ document.getElementById("result").innerHTML=`
 <div class="result-status" style="color:${statusColor}">
 ${statusText}
 </div>
+<div style="margin-top:10px;font-size:16px;">
+Ngày kiểm tra: ${currentDate}
+</div>
 <div class="result-message">
 ${messageText}
 </div>
 <div style="text-align:center;margin-top:20px;">
-<button class="submit-btn" onclick="downloadResult()">TẢI KẾT QUẢ (.PNG)</button>
+<button class="submit-btn" onclick="downloadResult()">TẢI KẾT QUẢ</button>
 <button class="home-btn" onclick="goHome()">
 TRANG CHỦ
 </button>

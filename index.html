@@ -342,7 +342,7 @@ document.getElementById("submitBtn").style.display="none";
 document.getElementById("info").style.display="none";
 
 document.getElementById("result").innerHTML=`
-<div class="result-box">
+<div id="resultImage" class="result-box">
 <div class="result-title">KẾT QUẢ KIỂM TRA</div>
 <div style="margin-bottom:15px;"><b>Họ và tên:</b> ${candidateName}</div>
 <div class="result-score">Số câu đúng: ${score}/${total}</div>
@@ -352,7 +352,13 @@ ${statusText}
 <div class="result-message">
 ${messageText}
 </div>
-<button class="home-btn" onclick="goHome()">TRANG CHỦ</button>
+<div style="text-align:center;margin-top:20px;">
+<button class="submit-btn" onclick="downloadResult()">TẢI KẾT QUẢ (.PNG)</button>
+<button class="home-btn" onclick="goHome()">
+TRANG CHỦ
+</button>
+
+</div>
 </div>
 `;
 }
@@ -369,8 +375,21 @@ document.getElementById("answeredCount").innerText="0";
 document.getElementById("progressBar").style.width="0%";
 clearInterval(timerInterval);
 }
+  function downloadResult(){
 
+let element = document.getElementById("resultImage");
+
+html2canvas(element).then(function(canvas){
+
+let link = document.createElement("a");
+link.download = "ket-qua-kiem-tra.png";
+link.href = canvas.toDataURL("image/png");
+link.click();
+
+});
+
+}
 </script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>

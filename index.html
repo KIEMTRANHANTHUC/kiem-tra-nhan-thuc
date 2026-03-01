@@ -126,6 +126,39 @@ letter-spacing:2px;
 text-shadow:1px 1px 2px black;
 margin-top:40px;
 }
+  .result-box{
+max-width:500px;
+margin:40px auto;
+background:#fff4f4;
+border:3px solid #8B0000;
+border-radius:12px;
+padding:30px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+
+.result-title{
+font-size:24px;
+font-weight:bold;
+color:#8B0000;
+margin-bottom:20px;
+}
+
+.result-score{
+font-size:20px;
+margin-bottom:15px;
+}
+
+.result-status{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.result-message{
+font-size:18px;
+margin-bottom:20px;
+}
 </style>
 </head>
 
@@ -277,15 +310,36 @@ score++;
 let total=currentQuestions.length;
 let percent=(score/total)*100;
 
-let message=percent>=70
-? "<div style='color:green;font-size:22px;font-weight:bold;'>Kết quả: ĐẠT</div><div>Chúc mừng đã đạt được kết quả cao</div>"
-: "<div style='color:red;font-size:22px;font-weight:bold;'>Kết quả: KHÔNG ĐẠT</div><div>Bạn cần ôn luyện thêm</div>";
+let statusText="";
+let statusColor="";
+let messageText="";
 
+if(percent>=70){
+statusText="ĐẠT";
+statusColor="green";
+messageText="Chúc mừng bạn đã đạt được kết quả cao";
+}else{
+statusText="KHÔNG ĐẠT";
+statusColor="red";
+messageText="Bạn cần ôn luyện thêm";
+}
+
+document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
+document.getElementById("info").style.display="none";
+
 document.getElementById("result").innerHTML=`
-<div class="score">Điểm số: ${score}/${total} (${percent.toFixed(0)}%)</div>
-${message}
-<button class="home-btn" onclick="goHome()">Trang chủ</button>
+<div class="result-box">
+<div class="result-title">KẾT QUẢ KIỂM TRA</div>
+<div class="result-score">Số câu đúng: ${score}/${total}</div>
+<div class="result-status" style="color:${statusColor}">
+${statusText}
+</div>
+<div class="result-message">
+${messageText}
+</div>
+<button class="home-btn" onclick="goHome()">TRANG CHỦ</button>
+</div>
 `;
 }
 

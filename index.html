@@ -162,6 +162,13 @@ margin-top:10px;
 margin-bottom:20px;
 color:#8B0000;
 }
+.review-question{
+background:#fff4f4;
+padding:15px;
+margin-bottom:15px;
+border-left:6px solid #8B0000;
+border-radius:6px;
+}
 </style>
 </head>
 
@@ -220,6 +227,7 @@ QUYẾT TÂM HOÀN THÀNH XUẤT SẮC NHIỆM VỤ HUẤN LUYỆN NĂM 2026
 <script>
 
 let currentQuestions=[];
+let userAnswers = [];
 let timerInterval;
 let timeLeft=1200;
 let selectedType="";
@@ -270,6 +278,7 @@ startTimer();
 function renderQuestions(){
 let form=document.getElementById("quizForm");
 form.innerHTML="";
+userAnswers=[];
 
 currentQuestions.forEach((q,index)=>{
 let div=document.createElement("div");
@@ -280,7 +289,8 @@ div.innerHTML=`<b>Câu ${index+1}:</b> ${q.question}<br><br>`;
 q.answers.forEach((a,i)=>{
 div.innerHTML+=`
 <label>
-<input type="radio" name="q${index}" value="${i}" onchange="updateProgress()">
+<input type="radio" name="q${index}" value="${i}" 
+onchange="saveAnswer(${index}, ${i}); updateProgress();">
 ${a.text}
 </label><br>`;
 });
@@ -288,7 +298,9 @@ ${a.text}
 form.appendChild(div);
 });
 }
-
+function saveAnswer(questionIndex, answerIndex){
+userAnswers[questionIndex] = answerIndex;
+}
 function updateProgress(){
 let answered=document.querySelectorAll("input[type=radio]:checked").length;
 document.getElementById("answeredCount").innerText=answered;
@@ -367,9 +379,7 @@ ${messageText}
 </div>
 <div style="text-align:center;margin-top:20px;">
 <button class="submit-btn" onclick="downloadResult()">TẢI KẾT QUẢ</button>
-<button class="home-btn" onclick="goHome()">
-TRANG CHỦ
-</button>
+<button class="home-btn" onclick="goHome()">TRANG CHỦ</button>
 </div>
 </div>
 `;
@@ -402,6 +412,43 @@ link.click();
 
 });
 
+}
+function showAnswers(){
+
+document.getElementById("result").innerHTML="";
+document.getElementById("quizForm").style.display="block";
+
+let form=document.getElementById("quizForm");
+form.innerHTML="";
+
+currentQuestions.forEach((q,index)=>{
+
+let div=document.createElement("div");
+div.className="review-question";
+
+div.innerHTML=`<b>Câu ${index+1}:</b> ${q.question}<br><br>`;
+
+q.answers.forEach((a,i)=>{
+
+let correctIndex = q.answers.findIndex(ans=>ans.correct);
+let icon = "";
+
+if(i === correctIndex){
+icon = '<span style="color:green;font-weight:bold;"> ✔</span>';
+}
+
+if(userAnswers[index] == i && i !== correctIndex){
+icon = '<span style="color:red;font-weight:bold;"> ❌</span>';
+}
+div.innerHTML += `<div>${a.text} ${icon}</div>`;
+});
+form.appendChild(div);
+});
+form.innerHTML += `
+<div style="text-align:center;margin-top:30px;">
+<button class="home-btn" onclick="goHome()">TRANG CHỦ</button>
+</div>
+`;
 }
 </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

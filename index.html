@@ -185,6 +185,11 @@ margin-bottom:20px;
 <h2>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h2>
 <h3 id="targetName"></h3>
 <p><b>Thời gian làm bài: 20 phút</b></p>
+<div style="margin:20px 0;">
+<label><b>HỌ VÀ TÊN:</b></label><br>
+<input type="text" id="fullName" 
+style="width:80%;padding:10px;font-size:16px;text-align:center;">
+</div>
 <p>Chúc bạn đạt được kết quả cao</p>
 <button class="submit-btn" onclick="beginQuiz()">BẮT ĐẦU</button>
 </div>
@@ -215,6 +220,7 @@ let currentQuestions=[];
 let timerInterval;
 let timeLeft=1200;
 let selectedType="";
+let candidateName="";
 
 function shuffle(array){
 for(let i=array.length-1;i>0;i--){
@@ -239,12 +245,19 @@ document.getElementById("targetName").innerText=targetText[type];
 }
 
 function beginQuiz(){
+candidateName = document.getElementById("fullName").value.trim();
+
+if(candidateName === ""){
+alert("Vui lòng nhập HỌ VÀ TÊN trước khi bắt đầu!");
+return;
+}
+
 document.getElementById("startScreen").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
 
-currentQuestions=shuffle([...questionSets[selectedType]]);
+currentQuestions = shuffle([...questionSets[selectedType]]);
 document.getElementById("totalQuestion").innerText=currentQuestions.length;
 
 renderQuestions();
@@ -331,6 +344,7 @@ document.getElementById("info").style.display="none";
 document.getElementById("result").innerHTML=`
 <div class="result-box">
 <div class="result-title">KẾT QUẢ KIỂM TRA</div>
+<div style="margin-bottom:15px;"><b>Họ và tên:</b> ${candidateName}</div>
 <div class="result-score">Số câu đúng: ${score}/${total}</div>
 <div class="result-status" style="color:${statusColor}">
 ${statusText}

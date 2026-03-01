@@ -5,12 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</title>
 
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-
 <style>
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#8B0000;
 }
 
@@ -22,7 +20,10 @@ display:flex;
 align-items:center;
 }
 
-.logo{width:60px;margin-right:15px;}
+.logo{
+width:60px;
+margin-right:15px;
+}
 
 .container{
 max-width:1000px;
@@ -47,6 +48,10 @@ border-radius:6px;
 cursor:pointer;
 }
 
+.menu button:hover{
+background:#cc0000;
+}
+
 .question-box{
 background:#fff4f4;
 padding:15px;
@@ -55,169 +60,190 @@ border-left:6px solid #8B0000;
 border-radius:6px;
 }
 
-.correct{color:green;font-weight:bold;}
-.wrong{color:red;font-weight:bold;}
+.question-title{
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.progress-bar-container{
+width:100%;
+height:18px;
+background:#ddd;
+border-radius:8px;
+overflow:hidden;
+margin-top:5px;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:green;
+transition:0.3s;
+}
 
 .submit-btn{
 padding:10px 15px;
 margin-top:10px;
 border:none;
 border-radius:6px;
+cursor:pointer;
 background:green;
 color:white;
-cursor:pointer;
 }
 
-.result-box{
-margin-top:20px;
-padding:15px;
-font-size:18px;
-font-weight:bold;
+.score{
 text-align:center;
-border-radius:8px;
+font-size:20px;
+font-weight:bold;
+margin-top:15px;
 }
+
+.timer{text-align:right;color:#8B0000;font-weight:bold;}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Emblem_of_the_People%27s_Army_of_Vietnam.svg/1024px-Emblem_of_the_People%27s_Army_of_Vietnam.svg.png" class="logo">
-<div><b>ĐẠI ĐỘI TT</b></div>
+<div>
+<b>ĐẠI ĐỘI TT</b><br>
+"Kịp thời - Chính xác - Bí mật - An toàn"
+</div>
 </div>
 
 <div class="container">
 <h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
-  <div style="margin-bottom:20px;">
-<h3>QUẢN TRỊ - TẢI BỘ CÂU HỎI (.docx)</h3>
-<select id="targetBo">
-  <option value="bo1">SĨ QUAN</option>
-  <option value="bo2">QUÂN NHÂN CHUYÊN NGHIỆP</option>
-  <option value="bo3">CHIẾN SĨ</option>
-</select>
-<input type="file" id="docxFile" accept=".docx">
-<button onclick="uploadDocx()">Tải lên</button>
+
+<div id="menu" class="menu">
+<button onclick="startQuiz()">BẮT ĐẦU KIỂM TRA</button>
 </div>
 
-<h3>1. Tải bộ câu hỏi (.docx) cho từng đối tượng</h3>
+<div id="info" style="display:none;">
+Đã làm: <span id="answeredCount">0</span>/<span id="totalQuestion"></span>
+<div class="progress-bar-container">
+<div id="progressBar" class="progress-bar"></div>
+</div>
+</div>
 
-SĨ QUAN: <input type="file" onchange="loadDocx(event,'bo1')" accept=".docx"><br><br>
-QNCN: <input type="file" onchange="loadDocx(event,'bo2')" accept=".docx"><br><br>
-CHIẾN SĨ: <input type="file" onchange="loadDocx(event,'bo3')" accept=".docx"><br><br>
+<form id="quizForm" style="display:none;"></form>
+<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
 
-<hr>
-
-<button onclick="startQuiz('bo1')">Bắt đầu - SĨ QUAN</button>
-<button onclick="startQuiz('bo2')">Bắt đầu - QNCN</button>
-<button onclick="startQuiz('bo3')">Bắt đầu - CHIẾN SĨ</button>
-
-<form id="quizForm"></form>
-<button id="submitBtn" class="submit-btn" onclick="submitQuiz()" style="display:none;">Nộp bài</button>
 <div id="result"></div>
 
 </div>
 
 <script>
 
-let questionBank = {
-bo1: [],
-bo2: [],
-bo3: []
-};
-
-function loadDocx(event,bo){
-let file = event.target.files[0];
-let reader = new FileReader();
-
-reader.onload = function(e){
-mammoth.extractRawText({arrayBuffer:e.target.result})
-.then(function(result){
-
-let text = result.value;
-let lines = text.split("\n").filter(l=>l.trim()!="");
-
-let questions=[];
-for(let i=0;i<lines.length;i++){
-if(lines[i].match(/^\d+\./)){
-let q = {
-question: lines[i],
-answers: []
-};
-for(let j=1;j<=4;j++){
-let ansLine = lines[i+j];
-let correct = ansLine.includes("*");
-ansLine = ansLine.replace("*","");
-q.answers.push({
-text: ansLine.replace(/[A-D]\./,"").trim(),
-correct: correct
-});
+const questions = [
+{
+question:"Phương châm '5 vững' bao gồm bao nhiêu nội dung?",
+answers:[
+{text:"3",correct:false},
+{text:"4",correct:false},
+{text:"5",correct:true},
+{text:"6",correct:false}
+]
+},
+{
+question:"'2 kiên định' trước hết là kiên định mục tiêu nào?",
+answers:[
+{text:"Công nghiệp hóa",correct:false},
+{text:"Chủ nghĩa xã hội",correct:true},
+{text:"Đô thị hóa",correct:false},
+{text:"Toàn cầu hóa",correct:false}
+]
+},
+{
+question:"'2 ngăn ngừa' nhằm ngăn ngừa điều gì?",
+answers:[
+{text:"Thiếu ngân sách",correct:false},
+{text:"Suy thoái tư tưởng chính trị",correct:true},
+{text:"Thiếu quân số",correct:false},
+{text:"Thiếu trang bị",correct:false}
+]
 }
-questions.push(q);
-}
-}
-questionBank[bo]=questions;
-alert("Tải thành công bộ câu hỏi!");
-});
-};
-reader.readAsArrayBuffer(file);
-}
+];
 
-function startQuiz(bo){
-let questions = questionBank[bo];
-if(questions.length===0){
-alert("Chưa tải bộ câu hỏi!");
-return;
-}
+function startQuiz(){
 
-let form=document.getElementById("quizForm");
+document.getElementById("menu").style.display="none";
+document.getElementById("quizForm").style.display="block";
+document.getElementById("submitBtn").style.display="inline-block";
+document.getElementById("info").style.display="block";
+
+const form=document.getElementById("quizForm");
 form.innerHTML="";
-document.getElementById("submitBtn").style.display="block";
 
 questions.forEach((q,index)=>{
 let div=document.createElement("div");
 div.className="question-box";
-div.innerHTML="<b>"+q.question+"</b><br>";
-q.answers.forEach((a,i)=>{
-div.innerHTML+=`
+
+div.innerHTML=`
+<div class="question-title">${index+1}. ${q.question}</div>
+${q.answers.map(a=>`
 <label>
-<input type="radio" name="q${index}" value="${i}">
+<input type="radio" name="q${index}" value="${a.correct}" onchange="updateProgress()">
 ${a.text}
-</label><br>`;
-});
+</label><br>
+`).join("")}
+`;
+
 form.appendChild(div);
 });
+
+document.getElementById("totalQuestion").innerText=questions.length;
+}
+
+function updateProgress(){
+let answered=0;
+questions.forEach((q,i)=>{
+if(document.querySelector(`input[name="q${i}"]:checked`)){
+answered++;
+}
+});
+
+document.getElementById("answeredCount").innerText=answered;
+
+let percent=(answered/questions.length)*100;
+document.getElementById("progressBar").style.width=percent+"%";
 }
 
 function submitQuiz(){
-let form=document.getElementById("quizForm");
-let questionsCount=form.querySelectorAll(".question-box").length;
+
 let score=0;
 
-for(let i=0;i<questionsCount;i++){
+questions.forEach((q,i)=>{
 let selected=document.querySelector(`input[name="q${i}"]:checked`);
-if(selected){
-let qObj=Object.values(questionBank).flat()[i];
-if(qObj.answers[selected.value].correct) score++;
+if(selected && selected.value==="true"){
+score++;
 }
-}
+});
 
-let percent=(score/questionsCount)*100;
-let resultDiv=document.getElementById("result");
+let percent=(score/questions.length)*100;
+
+let resultHTML=`<div class="score">Bạn trả lời đúng ${score}/${questions.length} câu (${percent.toFixed(0)}%)</div>`;
 
 if(percent>=70){
-resultDiv.innerHTML=`
-<div class="result-box correct">
-✅ ĐẠT<br>
-Chúc mừng bạn đã đạt được kết quả cao
-</div>`;
+resultHTML+=`
+<div style="color:green;font-size:22px;font-weight:bold;text-align:center;">
+Chúc mừng đã đạt được kết quả cao
+</div>
+`;
 }else{
-resultDiv.innerHTML=`
-<div class="result-box wrong">
-❌ KHÔNG ĐẠT<br>
+resultHTML+=`
+<div style="color:red;font-size:22px;font-weight:bold;text-align:center;">
+KẾT QUẢ: KHÔNG ĐẠT
+</div>
+<div style="text-align:center;">
 Bạn cần ôn luyện thêm
-</div>`;
+</div>
+`;
 }
+
+document.getElementById("result").innerHTML=resultHTML;
+document.getElementById("submitBtn").style.display="none";
 }
+
 </script>
 
 </body>

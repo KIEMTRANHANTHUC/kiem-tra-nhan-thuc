@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</title>
+<title>KIá»‚M TRA NHáº¬N THá»¨C CHÃNH TRá»Š</title>
 
 <style>
 body{
@@ -46,9 +46,11 @@ color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
+transition:0.3s;
 }
 
 .menu button:hover{
+transform:scale(1.05);
 background:#cc0000;
 }
 
@@ -63,6 +65,28 @@ border-radius:6px;
 .question-title{
 font-weight:bold;
 margin-bottom:8px;
+}
+
+.correct-icon{
+color:green;
+font-weight:bold;
+margin-left:10px;
+}
+
+.wrong-icon{
+color:red;
+font-weight:bold;
+margin-left:10px;
+}
+
+.sticky-progress{
+position:sticky;
+top:0;
+background:white;
+padding:10px;
+margin-bottom:15px;
+box-shadow:0 3px 8px rgba(0,0,0,0.2);
+z-index:1000;
 }
 
 .progress-bar-container{
@@ -81,167 +105,169 @@ background:green;
 transition:0.3s;
 }
 
-.submit-btn{
+.submit-btn,.home-btn{
 padding:10px 15px;
 margin-top:10px;
 border:none;
 border-radius:6px;
 cursor:pointer;
-background:green;
-color:white;
 }
 
-.score{
-text-align:center;
-font-size:20px;
-font-weight:bold;
-margin-top:15px;
-}
+.submit-btn{background:green;color:white;}
+.home-btn{background:#444;color:white;}
 
 .timer{text-align:right;color:#8B0000;font-weight:bold;}
+.score{text-align:center;font-size:20px;font-weight:bold;}
 </style>
 </head>
 
 <body>
 
 <div class="header">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Emblem_of_the_People%27s_Army_of_Vietnam.svg/1024px-Emblem_of_the_People%27s_Army_of_Vietnam.svg.png" class="logo">
 <div>
-<b>ĐẠI ĐỘI TT</b><br>
-"Kịp thời - Chính xác - Bí mật - An toàn"
+<b>Äáº I Äá»˜I TT</b><br>
+"Ká»‹p thá»i - ChÃ­nh xÃ¡c - BÃ­ máº­t - An toÃ n"
 </div>
 </div>
 
 <div class="container">
-<h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
+<h1>KIá»‚M TRA NHáº¬N THá»¨C CHÃNH TRá»Š</h1>
 
 <div id="menu" class="menu">
-<button onclick="startQuiz()">BẮT ĐẦU KIỂM TRA</button>
+<button onclick="startQuiz('bo1')">SÄ¨ QUAN</button>
+<button onclick="startQuiz('bo2')">QUÃ‚N NHÃ‚N CHUYÃŠN NGHIá»†P</button>
+<button onclick="startQuiz('bo3')">CHIáº¾N SÄ¨</button>
 </div>
 
-<div id="info" style="display:none;">
-Đã làm: <span id="answeredCount">0</span>/<span id="totalQuestion"></span>
+<div id="info" style="display:none;" class="sticky-progress">
+<div id="timer" class="timer"></div>
+ÄÃ£ lÃ m: <span id="answeredCount">0</span>/20
 <div class="progress-bar-container">
 <div id="progressBar" class="progress-bar"></div>
 </div>
 </div>
 
 <form id="quizForm" style="display:none;"></form>
-<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
-
+<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Ná»™p bÃ i</button>
 <div id="result"></div>
 
 </div>
 
+<script src="questions.js"></script>
+
 <script>
 
-const questions = [
-{
-question:"Phương châm '5 vững' bao gồm bao nhiêu nội dung?",
-answers:[
-{text:"3",correct:false},
-{text:"4",correct:false},
-{text:"5",correct:true},
-{text:"6",correct:false}
-]
-},
-{
-question:"'2 kiên định' trước hết là kiên định mục tiêu nào?",
-answers:[
-{text:"Công nghiệp hóa",correct:false},
-{text:"Chủ nghĩa xã hội",correct:true},
-{text:"Đô thị hóa",correct:false},
-{text:"Toàn cầu hóa",correct:false}
-]
-},
-{
-question:"'2 ngăn ngừa' nhằm ngăn ngừa điều gì?",
-answers:[
-{text:"Thiếu ngân sách",correct:false},
-{text:"Suy thoái tư tưởng chính trị",correct:true},
-{text:"Thiếu quân số",correct:false},
-{text:"Thiếu trang bị",correct:false}
-]
-}
-];
+let currentQuestions=[];
+let timerInterval;
+let timeLeft=1200;
 
-function startQuiz(){
+function startQuiz(type){
 
 document.getElementById("menu").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
+document.getElementById("result").innerHTML="";
 
-const form=document.getElementById("quizForm");
+currentQuestions=shuffle([...questionSets[type]]);
+
+renderQuestions();
+startTimer();
+}
+
+function renderQuestions(){
+let form=document.getElementById("quizForm");
 form.innerHTML="";
 
-questions.forEach((q,index)=>{
+currentQuestions.forEach((q,index)=>{
 let div=document.createElement("div");
 div.className="question-box";
 
-div.innerHTML=`
-<div class="question-title">${index+1}. ${q.question}</div>
-${q.answers.map(a=>`
+div.innerHTML=`<div class="question-title">
+CÃ¢u ${index+1}: ${q.question}
+</div>`;
+
+q.answers.forEach((a,i)=>{
+div.innerHTML+=`
 <label>
-<input type="radio" name="q${index}" value="${a.correct}" onchange="updateProgress()">
+<input type="radio" name="q${index}" value="${i}" onchange="updateProgress()">
 ${a.text}
-</label><br>
-`).join("")}
-`;
+</label><br>`;
+});
 
 form.appendChild(div);
 });
-
-document.getElementById("totalQuestion").innerText=questions.length;
 }
 
 function updateProgress(){
-let answered=0;
-questions.forEach((q,i)=>{
-if(document.querySelector(`input[name="q${i}"]:checked`)){
-answered++;
-}
-});
-
+let answered=document.querySelectorAll("input[type=radio]:checked").length;
 document.getElementById("answeredCount").innerText=answered;
+document.getElementById("progressBar").style.width=(answered/20*100)+"%";
+}
 
-let percent=(answered/questions.length)*100;
-document.getElementById("progressBar").style.width=percent+"%";
+function startTimer(){
+timeLeft=1200;
+clearInterval(timerInterval);
+timerInterval=setInterval(()=>{
+let m=Math.floor(timeLeft/60);
+let s=timeLeft%60;
+document.getElementById("timer").innerHTML=
+"Thá»i gian: "+m+":"+(s<10?"0":"")+s;
+timeLeft--;
+if(timeLeft<0){clearInterval(timerInterval);submitQuiz();}
+},1000);
 }
 
 function submitQuiz(){
-
+clearInterval(timerInterval);
 let score=0;
 
-questions.forEach((q,i)=>{
-let selected=document.querySelector(`input[name="q${i}"]:checked`);
-if(selected && selected.value==="true"){
+currentQuestions.forEach((q,index)=>{
+let selected=document.querySelector(`input[name="q${index}"]:checked`);
+let labels=document.querySelectorAll(`input[name="q${index}"]`);
+
+labels.forEach((input,i)=>{
+let parent=input.parentElement;
+parent.innerHTML=input.nextSibling.textContent;
+
+if(q.answers[i].correct){
+parent.innerHTML+="<span class='correct-icon'> âœ“</span>";
+}
+
+if(selected && i==selected.value && !q.answers[i].correct){
+parent.innerHTML+="<span class='wrong-icon'> âœ—</span>";
+}
+});
+
+if(selected && q.answers[selected.value].correct){
 score++;
 }
 });
 
-let percent=(score/questions.length)*100;
+let status = score>=18
+? "<div style='color:green;font-size:22px;font-weight:bold;'>Káº¾T QUáº¢: Äáº T</div>"
+: "<div style='color:red;font-size:22px;font-weight:bold;'>Káº¾T QUáº¢: KHÃ”NG Äáº T</div>";
 
-let resultHTML=`<div class="score">Bạn trả lời đúng ${score}/${questions.length} câu (${percent.toFixed(0)}%)</div>`;
+document.getElementById("submitBtn").style.display="none";
 
-if(percent>=70){
-resultHTML+=`
-<div style="color:green;font-size:22px;font-weight:bold;text-align:center;">
-Chúc mừng đã đạt được kết quả cao
-</div>
-`;
-}else{
-resultHTML+=`
-<div style="color:red;font-size:22px;font-weight:bold;text-align:center;">
-KẾT QUẢ: KHÔNG ĐẠT
-</div>
-<div style="text-align:center;">
-Bạn cần ôn luyện thêm
-</div>
+document.getElementById("result").innerHTML=`
+<div class="score">Äiá»ƒm sá»‘: ${score}/20</div>
+${status}
+<button class="home-btn" onclick="goHome()">Quay vá» trang chá»§</button>
 `;
 }
 
-document.getElementById("result").innerHTML=resultHTML;
+function goHome(){
+document.getElementById("menu").style.display="block";
+document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
+document.getElementById("info").style.display="none";
+document.getElementById("quizForm").innerHTML="";
+document.getElementById("result").innerHTML="";
+document.getElementById("answeredCount").innerText="0";
+document.getElementById("progressBar").style.width="0%";
+clearInterval(timerInterval);
 }
 
 </script>

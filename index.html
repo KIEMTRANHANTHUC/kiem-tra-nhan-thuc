@@ -10,7 +10,6 @@ body{
 margin:0;
 font-family:"Times New Roman", Times, serif;
 background:#8B0000;
-padding-bottom:120px;   /* TĂNG LÊN */
 }
 
 .header{
@@ -19,26 +18,10 @@ color:white;
 padding:15px;
 display:flex;
 align-items:center;
-justify-content:flex-start;
 }
-.footer{
-position: fixed;
-bottom: 0;
-left: 0;
-width: 100%;   /* Sửa 90% thành 100% */
-background: linear-gradient(90deg,#8B0000,#cc0000,#8B0000);
-color: yellow;
-text-align: center;
-padding: 18px;
-font-weight: bold;
-font-size: 20px;
-letter-spacing: 2px;
-text-shadow: 1px 1px 2px black;
-z-index: 999;
-}
+
 .logo{
 width:80px;
-height:auto;
 margin-right:15px;
 }
 
@@ -57,19 +40,30 @@ display:block;
 width:100%;
 margin:10px 0;
 padding:15px;
-font-size:30px;
+font-size:22px;
 background:#8B0000;
 color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
 transition:0.3s;
-font-family:"Times New Roman", Times, serif;
 }
 
 .menu button:hover{
 transform:scale(1.05);
 background:#cc0000;
+}
+
+#startScreen{
+display:none;
+text-align:center;
+padding:30px;
+background:#fff4f4;
+border:3px solid #8B0000;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+max-width:600px;
+margin:30px auto;
 }
 
 .question-box{
@@ -80,23 +74,6 @@ border-left:6px solid #8B0000;
 border-radius:6px;
 }
 
-.question-title{
-font-weight:bold;
-margin-bottom:8px;
-}
-
-.correct-icon{
-color:green;
-font-weight:bold;
-margin-left:10px;
-}
-
-.wrong-icon{
-color:red;
-font-weight:bold;
-margin-left:10px;
-}
-
 .sticky-progress{
 position:sticky;
 top:0;
@@ -104,7 +81,6 @@ background:white;
 padding:10px;
 margin-bottom:15px;
 box-shadow:0 3px 8px rgba(0,0,0,0.2);
-z-index:1000;
 }
 
 .progress-bar-container{
@@ -137,6 +113,19 @@ font-family:"Times New Roman", Times, serif;
 
 .timer{text-align:right;color:#8B0000;font-weight:bold;}
 .score{text-align:center;font-size:20px;font-weight:bold;}
+
+.footer{
+width:100%;
+background:linear-gradient(90deg,#8B0000,#cc0000,#8B0000);
+color:yellow;
+text-align:center;
+padding:18px;
+font-weight:bold;
+font-size:20px;
+letter-spacing:2px;
+text-shadow:1px 1px 2px black;
+margin-top:40px;
+}
 </style>
 </head>
 
@@ -159,6 +148,14 @@ font-family:"Times New Roman", Times, serif;
 <button onclick="startQuiz('bo3')">CHIẾN SĨ</button>
 </div>
 
+<div id="startScreen">
+<h2>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h2>
+<h3 id="targetName"></h3>
+<p><b>Thời gian làm bài: 20 phút</b></p>
+<p>Chúc bạn đạt được kết quả cao</p>
+<button class="submit-btn" onclick="beginQuiz()">BẮT ĐẦU</button>
+</div>
+
 <div id="info" style="display:none;" class="sticky-progress">
 <div id="timer" class="timer"></div>
 Đã làm: <span id="answeredCount">0</span>/<span id="totalQuestion">0</span>
@@ -173,6 +170,10 @@ font-family:"Times New Roman", Times, serif;
 
 </div>
 
+<div class="footer">
+QUYẾT TÂM HOÀN THÀNH XUẤT SẮC NHIỆM VỤ HUẤN LUYỆN NĂM 2026
+</div>
+
 <script src="questions.js"></script>
 
 <script>
@@ -180,16 +181,37 @@ font-family:"Times New Roman", Times, serif;
 let currentQuestions=[];
 let timerInterval;
 let timeLeft=1200;
+let selectedType="";
+
+function shuffle(array){
+for(let i=array.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1));
+[array[i],array[j]]=[array[j],array[i]];
+}
+return array;
+}
 
 function startQuiz(type){
+selectedType=type;
+
+let targetText={
+bo1:"ĐỐI TƯỢNG: SĨ QUAN",
+bo2:"ĐỐI TƯỢNG: QUÂN NHÂN CHUYÊN NGHIỆP",
+bo3:"ĐỐI TƯỢNG: CHIẾN SĨ"
+};
 
 document.getElementById("menu").style.display="none";
+document.getElementById("startScreen").style.display="block";
+document.getElementById("targetName").innerText=targetText[type];
+}
+
+function beginQuiz(){
+document.getElementById("startScreen").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
 document.getElementById("info").style.display="block";
-document.getElementById("result").innerHTML="";
 
-currentQuestions=shuffle([...questionSets[type]]);
+currentQuestions=shuffle([...questionSets[selectedType]]);
 document.getElementById("totalQuestion").innerText=currentQuestions.length;
 
 renderQuestions();
@@ -204,9 +226,7 @@ currentQuestions.forEach((q,index)=>{
 let div=document.createElement("div");
 div.className="question-box";
 
-div.innerHTML=`<div class="question-title">
-Câu ${index+1}: ${q.question}
-</div>`;
+div.innerHTML=`<b>Câu ${index+1}:</b> ${q.question}<br><br>`;
 
 q.answers.forEach((a,i)=>{
 div.innerHTML+=`
@@ -244,13 +264,11 @@ submitQuiz();
 }
 
 function submitQuiz(){
-
 clearInterval(timerInterval);
 let score=0;
 
 currentQuestions.forEach((q,index)=>{
 let selected=document.querySelector(`input[name="q${index}"]:checked`);
-
 if(selected && q.answers[selected.value].correct){
 score++;
 }
@@ -259,12 +277,11 @@ score++;
 let total=currentQuestions.length;
 let percent=(score/total)*100;
 
-let message = percent>=70
+let message=percent>=70
 ? "<div style='color:green;font-size:22px;font-weight:bold;'>Kết quả: ĐẠT</div><div>Chúc mừng đã đạt được kết quả cao</div>"
 : "<div style='color:red;font-size:22px;font-weight:bold;'>Kết quả: KHÔNG ĐẠT</div><div>Bạn cần ôn luyện thêm</div>";
 
 document.getElementById("submitBtn").style.display="none";
-
 document.getElementById("result").innerHTML=`
 <div class="score">Điểm số: ${score}/${total} (${percent.toFixed(0)}%)</div>
 ${message}
@@ -277,6 +294,7 @@ document.getElementById("menu").style.display="block";
 document.getElementById("quizForm").style.display="none";
 document.getElementById("submitBtn").style.display="none";
 document.getElementById("info").style.display="none";
+document.getElementById("startScreen").style.display="none";
 document.getElementById("quizForm").innerHTML="";
 document.getElementById("result").innerHTML="";
 document.getElementById("answeredCount").innerText="0";
@@ -285,8 +303,6 @@ clearInterval(timerInterval);
 }
 
 </script>
-<div class="footer">
-QUYẾT TÂM HOÀN THÀNH XUẤT SẮC NHIỆM VỤ HUẤN LUYỆN NĂM 2026
-</div>
+
 </body>
 </html>

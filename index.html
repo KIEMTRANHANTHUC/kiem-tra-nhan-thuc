@@ -370,8 +370,8 @@ ${messageText}
 <button class="home-btn" onclick="goHome()">
 TRANG CHỦ
 </button>
-
 </div>
+<div id="mobilePreview" style="text-align:center;"></div>
 </div>
 `;
 }
@@ -388,16 +388,38 @@ document.getElementById("answeredCount").innerText="0";
 document.getElementById("progressBar").style.width="0%";
 clearInterval(timerInterval);
 }
-  function downloadResult(){
+function downloadResult(){
 
 let element = document.getElementById("resultImage");
 
 html2canvas(element).then(function(canvas){
 
-let link = document.createElement("a");
-link.download = "ket-qua-kiem-tra.png";
-link.href = canvas.toDataURL("image/png");
-link.click();
+let imageData = canvas.toDataURL("image/png");
+
+let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+if(isMobile){
+
+    // Nếu là điện thoại → hiển thị ảnh ngay bên dưới
+    let previewArea = document.getElementById("mobilePreview");
+
+    previewArea.innerHTML = `
+        <p style="margin-top:15px;font-weight:bold;">
+        Nhấn giữ vào ảnh bên dưới để lưu
+        </p>
+        <img src="${imageData}" 
+             style="width:100%;max-width:500px;border:3px solid #8B0000;margin-top:10px;">
+    `;
+
+}else{
+
+    // Nếu là máy tính → tự tải như cũ
+    let link = document.createElement("a");
+    link.download = "ket-qua-kiem-tra.png";
+    link.href = imageData;
+    link.click();
+
+}
 
 });
 

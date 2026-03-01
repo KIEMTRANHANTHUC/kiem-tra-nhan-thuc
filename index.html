@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</title>
 
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
 <style>
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#8B0000;
 }
 
@@ -20,10 +22,7 @@ display:flex;
 align-items:center;
 }
 
-.logo{
-width:60px;
-margin-right:15px;
-}
+.logo{width:60px;margin-right:15px;}
 
 .container{
 max-width:1000px;
@@ -46,12 +45,6 @@ color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
-transition:0.3s;
-}
-
-.menu button:hover{
-transform:scale(1.05);
-background:#cc0000;
 }
 
 .question-box{
@@ -62,62 +55,27 @@ border-left:6px solid #8B0000;
 border-radius:6px;
 }
 
-.question-title{
-font-weight:bold;
-margin-bottom:8px;
-}
+.correct{color:green;font-weight:bold;}
+.wrong{color:red;font-weight:bold;}
 
-.correct-icon{
-color:green;
-font-weight:bold;
-margin-left:10px;
-}
-
-.wrong-icon{
-color:red;
-font-weight:bold;
-margin-left:10px;
-}
-
-.sticky-progress{
-position:sticky;
-top:0;
-background:white;
-padding:10px;
-margin-bottom:15px;
-box-shadow:0 3px 8px rgba(0,0,0,0.2);
-z-index:1000;
-}
-
-.progress-bar-container{
-width:100%;
-height:18px;
-background:#ddd;
-border-radius:8px;
-overflow:hidden;
-margin-top:5px;
-}
-
-.progress-bar{
-height:100%;
-width:0%;
-background:green;
-transition:0.3s;
-}
-
-.submit-btn,.home-btn{
+.submit-btn{
 padding:10px 15px;
 margin-top:10px;
 border:none;
 border-radius:6px;
+background:green;
+color:white;
 cursor:pointer;
 }
 
-.submit-btn{background:green;color:white;}
-.home-btn{background:#444;color:white;}
-
-.timer{text-align:right;color:#8B0000;font-weight:bold;}
-.score{text-align:center;font-size:20px;font-weight:bold;}
+.result-box{
+margin-top:20px;
+padding:15px;
+font-size:18px;
+font-weight:bold;
+text-align:center;
+border-radius:8px;
+}
 </style>
 </head>
 
@@ -125,36 +83,132 @@ cursor:pointer;
 
 <div class="header">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Emblem_of_the_People%27s_Army_of_Vietnam.svg/1024px-Emblem_of_the_People%27s_Army_of_Vietnam.svg.png" class="logo">
-<div>
-<b>ĐẠI ĐỘI TT</b><br>
-"Kịp thời - Chính xác - Bí mật - An toàn"
-</div>
+<div><b>ĐẠI ĐỘI TT</b></div>
 </div>
 
 <div class="container">
 <h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
 
-<div id="menu" class="menu">
-<button onclick="startQuiz('bo1')">SĨ QUAN</button>
-<button onclick="startQuiz('bo2')">QUÂN NHÂN CHUYÊN NGHIỆP</button>
-<button onclick="startQuiz('bo3')">CHIẾN SĨ</button>
-</div>
+<h3>1. Tải bộ câu hỏi (.docx) cho từng đối tượng</h3>
 
-<div id="info" style="display:none;" class="sticky-progress">
-<div id="timer" class="timer"></div>
-Đã làm: <span id="answeredCount">0</span>/20
-<div class="progress-bar-container">
-<div id="progressBar" class="progress-bar"></div>
-</div>
-</div>
+SĨ QUAN: <input type="file" onchange="loadDocx(event,'bo1')" accept=".docx"><br><br>
+QNCN: <input type="file" onchange="loadDocx(event,'bo2')" accept=".docx"><br><br>
+CHIẾN SĨ: <input type="file" onchange="loadDocx(event,'bo3')" accept=".docx"><br><br>
 
-<form id="quizForm" style="display:none;"></form>
-<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
+<hr>
+
+<button onclick="startQuiz('bo1')">Bắt đầu - SĨ QUAN</button>
+<button onclick="startQuiz('bo2')">Bắt đầu - QNCN</button>
+<button onclick="startQuiz('bo3')">Bắt đầu - CHIẾN SĨ</button>
+
+<form id="quizForm"></form>
+<button id="submitBtn" class="submit-btn" onclick="submitQuiz()" style="display:none;">Nộp bài</button>
 <div id="result"></div>
 
 </div>
 
-<script src="script.js"></script>
+<script>
+
+let questionBank = {
+bo1: [],
+bo2: [],
+bo3: []
+};
+
+function loadDocx(event,bo){
+let file = event.target.files[0];
+let reader = new FileReader();
+
+reader.onload = function(e){
+mammoth.extractRawText({arrayBuffer:e.target.result})
+.then(function(result){
+
+let text = result.value;
+let lines = text.split("\n").filter(l=>l.trim()!="");
+
+let questions=[];
+for(let i=0;i<lines.length;i++){
+if(lines[i].match(/^\d+\./)){
+let q = {
+question: lines[i],
+answers: []
+};
+for(let j=1;j<=4;j++){
+let ansLine = lines[i+j];
+let correct = ansLine.includes("*");
+ansLine = ansLine.replace("*","");
+q.answers.push({
+text: ansLine.replace(/[A-D]\./,"").trim(),
+correct: correct
+});
+}
+questions.push(q);
+}
+}
+questionBank[bo]=questions;
+alert("Tải thành công bộ câu hỏi!");
+});
+};
+reader.readAsArrayBuffer(file);
+}
+
+function startQuiz(bo){
+let questions = questionBank[bo];
+if(questions.length===0){
+alert("Chưa tải bộ câu hỏi!");
+return;
+}
+
+let form=document.getElementById("quizForm");
+form.innerHTML="";
+document.getElementById("submitBtn").style.display="block";
+
+questions.forEach((q,index)=>{
+let div=document.createElement("div");
+div.className="question-box";
+div.innerHTML="<b>"+q.question+"</b><br>";
+q.answers.forEach((a,i)=>{
+div.innerHTML+=`
+<label>
+<input type="radio" name="q${index}" value="${i}">
+${a.text}
+</label><br>`;
+});
+form.appendChild(div);
+});
+}
+
+function submitQuiz(){
+let form=document.getElementById("quizForm");
+let questionsCount=form.querySelectorAll(".question-box").length;
+let score=0;
+
+for(let i=0;i<questionsCount;i++){
+let selected=document.querySelector(`input[name="q${i}"]:checked`);
+if(selected){
+let qObj=Object.values(questionBank).flat()[i];
+if(qObj.answers[selected.value].correct) score++;
+}
+}
+
+let percent=(score/questionsCount)*100;
+let resultDiv=document.getElementById("result");
+
+if(percent>=70){
+resultDiv.innerHTML=`
+<div class="result-box correct">
+✅ ĐẠT<br>
+Chúc mừng bạn đã đạt được kết quả cao
+</div>`;
+}else{
+resultDiv.innerHTML=`
+<div class="result-box wrong">
+❌ KHÔNG ĐẠT<br>
+Bạn cần ôn luyện thêm
+</div>`;
+}
+}
+</script>
 
 </body>
 </html>

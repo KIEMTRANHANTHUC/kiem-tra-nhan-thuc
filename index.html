@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KIá»‚M TRA NHáº¬N THá»¨C CHÃNH TRá»Š</title>
+<title>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:"Times New Roman", Times, serif;
 background:#8B0000;
 }
 
@@ -47,6 +47,7 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 transition:0.3s;
+font-family:"Times New Roman", Times, serif;
 }
 
 .menu button:hover{
@@ -111,6 +112,7 @@ margin-top:10px;
 border:none;
 border-radius:6px;
 cursor:pointer;
+font-family:"Times New Roman", Times, serif;
 }
 
 .submit-btn{background:green;color:white;}
@@ -126,30 +128,30 @@ cursor:pointer;
 <div class="header">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Emblem_of_the_People%27s_Army_of_Vietnam.svg/1024px-Emblem_of_the_People%27s_Army_of_Vietnam.svg.png" class="logo">
 <div>
-<b>Äáº I Äá»˜I TT</b><br>
-"Ká»‹p thá»i - ChÃ­nh xÃ¡c - BÃ­ máº­t - An toÃ n"
+<b>ĐẠI ĐỘI TT</b><br>
+"Kịp thời - Chính xác - Bí mật - An toàn"
 </div>
 </div>
 
 <div class="container">
-<h1>KIá»‚M TRA NHáº¬N THá»¨C CHÃNH TRá»Š</h1>
+<h1>KIỂM TRA NHẬN THỨC CHÍNH TRỊ</h1>
 
 <div id="menu" class="menu">
-<button onclick="startQuiz('bo1')">SÄ¨ QUAN</button>
-<button onclick="startQuiz('bo2')">QUÃ‚N NHÃ‚N CHUYÃŠN NGHIá»†P</button>
-<button onclick="startQuiz('bo3')">CHIáº¾N SÄ¨</button>
+<button onclick="startQuiz('bo1')">SĨ QUAN</button>
+<button onclick="startQuiz('bo2')">QUÂN NHÂN CHUYÊN NGHIỆP</button>
+<button onclick="startQuiz('bo3')">CHIẾN SĨ</button>
 </div>
 
 <div id="info" style="display:none;" class="sticky-progress">
 <div id="timer" class="timer"></div>
-ÄÃ£ lÃ m: <span id="answeredCount">0</span>/20
+Đã làm: <span id="answeredCount">0</span>/20
 <div class="progress-bar-container">
 <div id="progressBar" class="progress-bar"></div>
 </div>
 </div>
 
 <form id="quizForm" style="display:none;"></form>
-<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Ná»™p bÃ i</button>
+<button id="submitBtn" class="submit-btn" style="display:none;" onclick="submitQuiz()">Nộp bài</button>
 <div id="result"></div>
 
 </div>
@@ -163,7 +165,6 @@ let timerInterval;
 let timeLeft=1200;
 
 function startQuiz(type){
-
 document.getElementById("menu").style.display="none";
 document.getElementById("quizForm").style.display="block";
 document.getElementById("submitBtn").style.display="inline-block";
@@ -171,7 +172,6 @@ document.getElementById("info").style.display="block";
 document.getElementById("result").innerHTML="";
 
 currentQuestions=shuffle([...questionSets[type]]);
-
 renderQuestions();
 startTimer();
 }
@@ -185,7 +185,7 @@ let div=document.createElement("div");
 div.className="question-box";
 
 div.innerHTML=`<div class="question-title">
-CÃ¢u ${index+1}: ${q.question}
+Câu ${index+1}: ${q.question}
 </div>`;
 
 q.answers.forEach((a,i)=>{
@@ -213,7 +213,7 @@ timerInterval=setInterval(()=>{
 let m=Math.floor(timeLeft/60);
 let s=timeLeft%60;
 document.getElementById("timer").innerHTML=
-"Thá»i gian: "+m+":"+(s<10?"0":"")+s;
+"Thời gian: "+m+":"+(s<10?"0":"")+s;
 timeLeft--;
 if(timeLeft<0){clearInterval(timerInterval);submitQuiz();}
 },1000);
@@ -232,11 +232,11 @@ let parent=input.parentElement;
 parent.innerHTML=input.nextSibling.textContent;
 
 if(q.answers[i].correct){
-parent.innerHTML+="<span class='correct-icon'> âœ“</span>";
+parent.innerHTML+="<span class='correct-icon'> ✓</span>";
 }
 
 if(selected && i==selected.value && !q.answers[i].correct){
-parent.innerHTML+="<span class='wrong-icon'> âœ—</span>";
+parent.innerHTML+="<span class='wrong-icon'> ✗</span>";
 }
 });
 
@@ -245,16 +245,16 @@ score++;
 }
 });
 
-let status = score>=18
-? "<div style='color:green;font-size:22px;font-weight:bold;'>Káº¾T QUáº¢: Äáº T</div>"
-: "<div style='color:red;font-size:22px;font-weight:bold;'>Káº¾T QUáº¢: KHÃ”NG Äáº T</div>";
+let message = score>=18
+? "<div style='color:green;font-size:22px;font-weight:bold;'>Kết quả: ĐẠT</div><div>Chúc mừng đã đạt được kết quả cao</div>"
+: "<div style='color:red;font-size:22px;font-weight:bold;'>Kết quả: KHÔNG ĐẠT</div><div>Bạn cần ôn luyện thêm</div>";
 
 document.getElementById("submitBtn").style.display="none";
 
 document.getElementById("result").innerHTML=`
-<div class="score">Äiá»ƒm sá»‘: ${score}/20</div>
-${status}
-<button class="home-btn" onclick="goHome()">Quay vá» trang chá»§</button>
+<div class="score">Điểm số: ${score}/20</div>
+${message}
+<button class="home-btn" onclick="goHome()">Trang chủ</button>
 `;
 }
 
